@@ -1,9 +1,6 @@
 package com.grananda.facecheckapi.services;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import software.amazon.awssdk.services.rekognition.model.CreateCollectionResponse;
 import software.amazon.awssdk.services.rekognition.model.DeleteCollectionResponse;
 import software.amazon.awssdk.services.rekognition.model.DescribeCollectionResponse;
@@ -14,14 +11,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
-class AwsRekognitionCollectionServiceImplTest {
-
-    @Autowired
-    AwsRekognitionCollectionService rekognitionCollectionService;
+class AwsRekognitionCollectionServiceImplTest extends BaseAwsRekognitionTest {
 
     @Test
-    void createFaceMemoryCollection() {
+    void a_collection_is_created() {
         // Given
         String collectionId = UUID.randomUUID().toString();
 
@@ -34,7 +27,7 @@ class AwsRekognitionCollectionServiceImplTest {
     }
 
     @Test
-    void describeFaceMemoryCollection() {
+    void a_collection_is_described() {
         // Given
         String collectionId = UUID.randomUUID().toString();
 
@@ -48,7 +41,7 @@ class AwsRekognitionCollectionServiceImplTest {
     }
 
     @Test
-    void listMemoryCollections() {
+    void a_list_of_collection_is_requested() {
         // Given
         String collectionId = UUID.randomUUID().toString();
 
@@ -62,7 +55,7 @@ class AwsRekognitionCollectionServiceImplTest {
     }
 
     @Test
-    void deleteMemoryCollection() {
+    void a_collection_is_removed() {
         // Given
         String collectionId = UUID.randomUUID().toString();
 
@@ -73,15 +66,5 @@ class AwsRekognitionCollectionServiceImplTest {
 
         // Then
         assertEquals(response.statusCode().toString(), "200");
-    }
-
-    @AfterEach
-    private void cleanUp() {
-        ListCollectionsResponse response = rekognitionCollectionService.listFaceMemoryCollections();
-
-        for (String collectionId : response.collectionIds()) {
-            System.out.println("DELETING COLLECTION: "+collectionId);
-            rekognitionCollectionService.deleteFaceMemoryCollection(collectionId);
-        }
     }
 }
