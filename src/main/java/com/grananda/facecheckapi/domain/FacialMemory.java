@@ -19,6 +19,6 @@ public class FacialMemory extends BaseEntity {
     @JoinColumn(name = "collection_id")
     private FaceMemoryCollection collection;
 
-    @OneToOne(mappedBy = "address")
+    @OneToOne(mappedBy = "facialMemory")
     private User user;
 }

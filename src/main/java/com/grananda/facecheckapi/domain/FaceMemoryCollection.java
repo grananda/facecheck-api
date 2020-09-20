@@ -1,22 +1,23 @@
 package com.grananda.facecheckapi.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Setter
 @Getter
 @Entity
-@NoArgsConstructor
 public class FaceMemoryCollection extends BaseEntity {
+
+    @NotNull
+    @Column(name = "name")
+    private String name;
 
     @NotNull
     @Column(name = "collection_id")
@@ -25,6 +26,10 @@ public class FaceMemoryCollection extends BaseEntity {
     @NotNull
     @Column(name = "collection_arn")
     private String collectionArn;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "collection")
     private Set<FacialMemory> faces = new HashSet<>();;

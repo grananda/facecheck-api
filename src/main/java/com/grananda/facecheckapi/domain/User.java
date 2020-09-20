@@ -41,6 +41,10 @@ public class User extends BaseEntity {
     @Size(min = 8, max = 50)
     private String password;
 
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "facial_memory_id", referencedColumnName = "id")
     private FacialMemory facialMemory;

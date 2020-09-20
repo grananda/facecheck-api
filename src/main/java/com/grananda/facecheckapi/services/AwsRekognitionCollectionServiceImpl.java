@@ -1,10 +1,12 @@
 package com.grananda.facecheckapi.services;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
 
 @Service
+@Log4j2
 public class AwsRekognitionCollectionServiceImpl implements AwsRekognitionCollectionService {
 
     private final RekognitionClient client;
@@ -15,11 +17,19 @@ public class AwsRekognitionCollectionServiceImpl implements AwsRekognitionCollec
 
     @Override
     public CreateCollectionResponse createFaceMemoryCollection(String collectionId) {
-        CreateCollectionRequest request = CreateCollectionRequest.builder()
-                .collectionId(collectionId)
-                .build();
+        CreateCollectionResponse response = CreateCollectionResponse.builder().build();
 
-        return client.createCollection(request);
+        try {
+            CreateCollectionRequest request = CreateCollectionRequest.builder()
+                    .collectionId(collectionId)
+                    .build();
+
+            response = client.createCollection(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError: " + awsException.toString());
+        }
+
+        return response;
     }
 
     @Override

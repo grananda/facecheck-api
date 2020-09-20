@@ -7,6 +7,8 @@ import software.amazon.awssdk.services.rekognition.model.ListCollectionsResponse
 
 public interface AwsRekognitionCollectionService {
 
+    int AWS_SUCCESS_STATUS_CODE = 200;
+
     CreateCollectionResponse createFaceMemoryCollection(String collectionId);
 
     DescribeCollectionResponse describeFaceMemoryCollection(String collectionId);
