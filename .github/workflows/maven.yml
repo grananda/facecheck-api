@@ -15,7 +15,7 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.11
+          java-version: 1.11ˇ
       - name: "Configure AWS Credentials" Action For GitHub Actions
         uses: aws-actions/configure-aws-credentials@v1
         with:
