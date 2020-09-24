@@ -46,6 +46,6 @@ public class User extends BaseEntity {
     private Organization organization;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "facial_memory_id", referencedColumnName = "id")
-    private FacialMemory facialMemory;
+    @JoinColumn(name = "face_memory_id", referencedColumnName = "id")
+    private FaceMemory faceMemory;
 }

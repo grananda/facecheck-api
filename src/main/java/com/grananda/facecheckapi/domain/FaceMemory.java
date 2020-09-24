@@ -13,12 +13,12 @@ import javax.persistence.OneToOne;
 @Getter
 @Entity
 @NoArgsConstructor
-public class FacialMemory extends BaseEntity {
+public class FaceMemory extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "collection_id")
     private FaceMemoryCollection collection;
 
-    @OneToOne(mappedBy = "facialMemory")
+    @OneToOne(mappedBy = "faceMemory")
     private User user;
 }

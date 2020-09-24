@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class FacialMemoryCollectionServiceImplTest {
+class FaceMemoryCollectionServiceImplTest {
 
     @MockBean
     AwsRekognitionCollectionService awsRekognitionCollectionService;
@@ -35,7 +35,7 @@ class FacialMemoryCollectionServiceImplTest {
     FaceMemoryCollectionRepository faceMemoryCollectionRepository;
 
     @Autowired
-    FacialMemoryCollectionServiceImpl service;
+    FaceMemoryCollectionServiceImpl service;
 
     @Autowired
     OrganizationRepository organizationRepository;

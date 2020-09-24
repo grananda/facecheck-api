@@ -32,5 +32,5 @@ public class FaceMemoryCollection extends BaseEntity {
     private Organization organization;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "collection")
-    private Set<FacialMemory> faces = new HashSet<>();;
+    private Set<FaceMemory> faces = new HashSet<>();;
 }

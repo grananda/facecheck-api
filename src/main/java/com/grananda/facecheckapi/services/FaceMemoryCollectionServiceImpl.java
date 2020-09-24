@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.rekognition.model.DeleteCollectionRespons
 
 @Log4j2
 @Service
-public class FacialMemoryCollectionServiceImpl implements FacialMemoryCollectionService {
+public class FaceMemoryCollectionServiceImpl implements FaceMemoryCollectionService {
 
     private final AwsRekognitionCollectionService awsRekognitionCollectionService;
 
@@ -18,7 +18,7 @@ public class FacialMemoryCollectionServiceImpl implements FacialMemoryCollection
 
     private final UuIdGeneratorService uuIdGeneratorService;
 
-    public FacialMemoryCollectionServiceImpl(
+    public FaceMemoryCollectionServiceImpl(
             AwsRekognitionCollectionService awsRekognitionCollectionService,
             FaceMemoryCollectionRepository faceMemoryCollectionRepository,
             UuIdGeneratorService uuIdGeneratorService
