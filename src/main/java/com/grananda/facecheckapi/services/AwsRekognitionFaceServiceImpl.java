@@ -77,12 +77,20 @@ public class AwsRekognitionFaceServiceImpl implements AwsRekognitionFaceService 
 
     @Override
     public DeleteFacesResponse forgetFace(String collectionId, String faceId) {
-        DeleteFacesRequest request = DeleteFacesRequest.builder()
-                .collectionId(collectionId)
-                .faceIds(faceId)
-                .build();
+        DeleteFacesResponse response = DeleteFacesResponse.builder().build();
 
-        return client.deleteFaces(request);
+        try {
+            DeleteFacesRequest request = DeleteFacesRequest.builder()
+                    .collectionId(collectionId)
+                    .faceIds(faceId)
+                    .build();
+
+            response = client.deleteFaces(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionFaceServiceImpl:DeleteFacesResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 
     public DeleteFacesResponse forgetFaces(String collectionId, Collection<String> faceIds) {

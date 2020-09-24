@@ -5,7 +5,6 @@ import com.grananda.facecheckapi.domain.FaceMemoryCollection;
 import com.grananda.facecheckapi.domain.Organization;
 import com.grananda.facecheckapi.repositories.FaceMemoryCollectionRepository;
 import com.grananda.facecheckapi.repositories.OrganizationRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,11 +38,6 @@ class FaceMemoryCollectionServiceImplTest {
 
     @Autowired
     OrganizationRepository organizationRepository;
-
-    @BeforeEach
-    void setUp() {
-
-    }
 
     @Test
     void a_face_memory_collection_is_registered() {

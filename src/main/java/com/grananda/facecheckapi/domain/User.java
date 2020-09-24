@@ -1,18 +1,18 @@
 package com.grananda.facecheckapi.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Setter
 @Getter
 @Entity
-@NoArgsConstructor
 public class User extends BaseEntity {
 
     @Column(name = "first_name")
