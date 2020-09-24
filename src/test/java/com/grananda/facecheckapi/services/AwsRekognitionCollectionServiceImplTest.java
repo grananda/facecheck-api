@@ -1,6 +1,5 @@
 package com.grananda.facecheckapi.services;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.rekognition.model.CreateCollectionResponse;
 import software.amazon.awssdk.services.rekognition.model.DeleteCollectionResponse;
@@ -12,7 +11,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled
 class AwsRekognitionCollectionServiceImplTest extends BaseAwsRekognitionTest {
 
     @Test

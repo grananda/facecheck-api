@@ -1,6 +1,5 @@
 package com.grananda.facecheckapi.services;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import software.amazon.awssdk.services.rekognition.model.*;
@@ -12,7 +11,6 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled
 class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
 
     @Autowired
