@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
 
-@Service
 @Log4j2
+@Service
 public class AwsRekognitionCollectionServiceImpl implements AwsRekognitionCollectionService {
 
     private final RekognitionClient client;
@@ -26,7 +26,7 @@ public class AwsRekognitionCollectionServiceImpl implements AwsRekognitionCollec
 
             response = client.createCollection(request);
         } catch (Exception awsException) {
-            log.error("AwsSdkError: " + awsException.toString());
+            log.error("AwsSdkError:AwsRekognitionCollectionServiceImpl:CreateCollectionResponse: " + awsException.toString());
         }
 
         return response;
@@ -34,26 +34,50 @@ public class AwsRekognitionCollectionServiceImpl implements AwsRekognitionCollec
 
     @Override
     public DescribeCollectionResponse describeFaceMemoryCollection(String collectionId) {
-        DescribeCollectionRequest request = DescribeCollectionRequest.builder()
-                .collectionId(collectionId)
-                .build();
+        DescribeCollectionResponse response = DescribeCollectionResponse.builder().build();
 
-        return client.describeCollection(request);
+        try {
+            DescribeCollectionRequest request = DescribeCollectionRequest.builder()
+                    .collectionId(collectionId)
+                    .build();
+
+            response = client.describeCollection(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionCollectionServiceImpl:DescribeCollectionResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 
     @Override
     public ListCollectionsResponse listFaceMemoryCollections() {
-        ListCollectionsRequest request = ListCollectionsRequest.builder().build();
+        ListCollectionsResponse response = ListCollectionsResponse.builder().build();
 
-        return client.listCollections(request);
+        try {
+            ListCollectionsRequest request = ListCollectionsRequest.builder().build();
+
+            response = client.listCollections(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionCollectionServiceImpl:ListCollectionsResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 
     @Override
     public DeleteCollectionResponse deleteFaceMemoryCollection(String collectionId) {
-        DeleteCollectionRequest request = DeleteCollectionRequest.builder()
-                .collectionId(collectionId)
-                .build();
+        DeleteCollectionResponse response = DeleteCollectionResponse.builder().build();
 
-        return client.deleteCollection(request);
+        try {
+            DeleteCollectionRequest request = DeleteCollectionRequest.builder()
+                    .collectionId(collectionId)
+                    .build();
+
+            response = client.deleteCollection(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionCollectionServiceImpl:DeleteCollectionResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 }

@@ -1,11 +1,13 @@
 package com.grananda.facecheckapi.services;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
 
 import java.util.Collection;
 
+@Log4j2
 @Service
 public class AwsRekognitionFaceServiceImpl implements AwsRekognitionFaceService {
 
@@ -17,36 +19,60 @@ public class AwsRekognitionFaceServiceImpl implements AwsRekognitionFaceService 
 
     @Override
     public DetectFacesResponse detectFaces(Image image) {
-        DetectFacesRequest request = DetectFacesRequest.builder()
-                .image(image)
-                .build();
+        DetectFacesResponse response = DetectFacesResponse.builder().build();
 
-        return client.detectFaces(request);
+        try {
+            DetectFacesRequest request = DetectFacesRequest.builder()
+                    .image(image)
+                    .build();
+
+            response = client.detectFaces(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionFaceServiceImpl:DetectFacesResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 
     @Override
     public IndexFacesResponse indexFace(String collectionId, Image image) {
-        IndexFacesRequest request = IndexFacesRequest.builder()
-                .collectionId(collectionId)
-                .image(image)
-                .maxFaces(1)
-                .qualityFilter(QualityFilter.AUTO)
-                .detectionAttributes(Attribute.ALL)
-                .build();
+        IndexFacesResponse response = IndexFacesResponse.builder().build();
 
-        return client.indexFaces(request);
+        try {
+            IndexFacesRequest request = IndexFacesRequest.builder()
+                    .collectionId(collectionId)
+                    .image(image)
+                    .maxFaces(1)
+                    .qualityFilter(QualityFilter.AUTO)
+                    .detectionAttributes(Attribute.ALL)
+                    .build();
+
+            response = client.indexFaces(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionFaceServiceImpl:IndexFacesResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 
     @Override
     public SearchFacesByImageResponse identifyFace(String collectionId, Image image) {
-        SearchFacesByImageRequest request = SearchFacesByImageRequest.builder()
-                .collectionId(collectionId)
-                .image(image)
-                .maxFaces(1)
-                .faceMatchThreshold(90F)
-                .build();
+        SearchFacesByImageResponse response = SearchFacesByImageResponse.builder().build();
 
-        return client.searchFacesByImage(request);
+        try {
+            SearchFacesByImageRequest request = SearchFacesByImageRequest.builder()
+                    .collectionId(collectionId)
+                    .image(image)
+                    .maxFaces(1)
+                    .faceMatchThreshold(90F)
+                    .build();
+
+            response = client.searchFacesByImage(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionFaceServiceImpl:SearchFacesByImageResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 
     @Override
@@ -60,20 +86,36 @@ public class AwsRekognitionFaceServiceImpl implements AwsRekognitionFaceService 
     }
 
     public DeleteFacesResponse forgetFaces(String collectionId, Collection<String> faceIds) {
-        DeleteFacesRequest request = DeleteFacesRequest.builder()
-                .collectionId(collectionId)
-                .faceIds(faceIds)
-                .build();
+        DeleteFacesResponse response = DeleteFacesResponse.builder().build();
 
-        return client.deleteFaces(request);
+        try {
+            DeleteFacesRequest request = DeleteFacesRequest.builder()
+                    .collectionId(collectionId)
+                    .faceIds(faceIds)
+                    .build();
+
+            response = client.deleteFaces(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionFaceServiceImpl:DeleteFacesResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 
     @Override
     public ListFacesResponse listCollectionFaces(String collectionId) {
-        ListFacesRequest request = ListFacesRequest.builder()
-                .collectionId(collectionId)
-                .build();
+        ListFacesResponse response = ListFacesResponse.builder().build();
 
-        return client.listFaces(request);
+        try {
+            ListFacesRequest request = ListFacesRequest.builder()
+                    .collectionId(collectionId)
+                    .build();
+
+            response = client.listFaces(request);
+        } catch (Exception awsException) {
+            log.error("AwsSdkError:AwsRekognitionFaceServiceImpl:DeleteFacesResponse: " + awsException.toString());
+        }
+
+        return response;
     }
 }

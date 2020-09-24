@@ -3,10 +3,12 @@ package com.grananda.facecheckapi.services;
 import com.grananda.facecheckapi.domain.FaceMemoryCollection;
 import com.grananda.facecheckapi.domain.Organization;
 import com.grananda.facecheckapi.repositories.FaceMemoryCollectionRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rekognition.model.CreateCollectionResponse;
 import software.amazon.awssdk.services.rekognition.model.DeleteCollectionResponse;
 
+@Log4j2
 @Service
 public class FacialMemoryCollectionServiceImpl implements FacialMemoryCollectionService {
 
@@ -28,32 +30,43 @@ public class FacialMemoryCollectionServiceImpl implements FacialMemoryCollection
 
     @Override
     public FaceMemoryCollection registerFaceMemoryCollection(Organization organization, String collectionName) {
-        String collectionId = uuIdGeneratorService.generateUuId().toString();
+        FaceMemoryCollection faceMemoryCollection = FaceMemoryCollection.builder().build();
 
-        CreateCollectionResponse createCollectionResponse = awsRekognitionCollectionService.createFaceMemoryCollection(collectionId);
+        try {
+            String collectionId = uuIdGeneratorService.generateUuId().toString();
 
-        FaceMemoryCollection faceMemoryCollection = FaceMemoryCollection.builder()
-                .name(collectionName)
-                .collectionId(collectionId)
-                .collectionArn(createCollectionResponse.collectionArn())
-                .build();
+            CreateCollectionResponse createCollectionResponse = awsRekognitionCollectionService.createFaceMemoryCollection(collectionId);
 
-        faceMemoryCollectionRepository.save(faceMemoryCollection);
+            faceMemoryCollection = FaceMemoryCollection.builder()
+                    .name(collectionName)
+                    .collectionId(collectionId)
+                    .collectionArn(createCollectionResponse.collectionArn())
+                    .build();
 
-        faceMemoryCollection.setOrganization(organization);
-        organization.getMemoryCollections().add(faceMemoryCollection);
+            faceMemoryCollectionRepository.save(faceMemoryCollection);
+
+            faceMemoryCollection.setOrganization(organization);
+            organization.getMemoryCollections().add(faceMemoryCollection);
+
+        } catch (Exception faceMemoryException) {
+            log.error("FaceMemoryException:FacialMemoryCollectionService:FaceMemoryCollection: " + faceMemoryException.toString());
+        }
 
         return faceMemoryCollection;
     }
 
     @Override
     public Boolean removeFaceMemoryCollection(FaceMemoryCollection collection) {
-        DeleteCollectionResponse deleteCollectionResponse = awsRekognitionCollectionService.deleteFaceMemoryCollection(collection.getCollectionId());
+        try {
+            DeleteCollectionResponse deleteCollectionResponse = awsRekognitionCollectionService.deleteFaceMemoryCollection(collection.getCollectionId());
 
-        if (deleteCollectionResponse.statusCode() == awsRekognitionCollectionService.AWS_SUCCESS_STATUS_CODE) {
-            faceMemoryCollectionRepository.delete(collection);
+            if (deleteCollectionResponse.statusCode() == awsRekognitionCollectionService.AWS_SUCCESS_STATUS_CODE) {
+                faceMemoryCollectionRepository.delete(collection);
 
-            return true;
+                return true;
+            }
+        } catch (Exception faceMemoryException) {
+            log.error("FaceMemoryException:FacialMemoryCollectionService:removeFaceMemoryCollection: " + faceMemoryException.toString());
         }
 
         return false;
