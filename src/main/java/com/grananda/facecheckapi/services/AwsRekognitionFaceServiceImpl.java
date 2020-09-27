@@ -52,6 +52,26 @@ public class AwsRekognitionFaceServiceImpl implements AwsRekognitionFaceService 
     }
 
     @Override
+    public SearchFacesResponse searchFace(String collectionId, String faceId) {
+        SearchFacesRequest request = SearchFacesRequest.builder()
+                .collectionId(collectionId)
+                .faceId(faceId)
+                .build();
+
+        return client.searchFaces(request);
+    }
+
+    @Override
+    public SearchFacesByImageResponse searchImage(String collectionId, Image image) {
+        SearchFacesByImageRequest request = SearchFacesByImageRequest.builder()
+                .collectionId(collectionId)
+                .image(image)
+                .build();
+
+        return client.searchFacesByImage(request);
+    }
+
+    @Override
     public DeleteFacesResponse forgetFace(String collectionId, String faceId) {
         DeleteFacesRequest request = DeleteFacesRequest.builder()
                 .collectionId(collectionId)

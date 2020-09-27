@@ -3,9 +3,7 @@ package com.grananda.facecheckapi.services;
 import com.grananda.facecheckapi.domain.FaceMemory;
 import com.grananda.facecheckapi.domain.FaceMemoryCollection;
 import com.grananda.facecheckapi.domain.User;
-import com.grananda.facecheckapi.exceptions.FaceCheckException;
-import com.grananda.facecheckapi.exceptions.MissingFaceInImageException;
-import com.grananda.facecheckapi.exceptions.MultipleFacesInImageException;
+import com.grananda.facecheckapi.exceptions.*;
 import com.grananda.facecheckapi.repositories.FaceMemoryRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -37,6 +35,12 @@ public class FaceMemoryServiceImpl implements FaceMemoryService {
             throw new MultipleFacesInImageException("FaceMemoryException:FaceMemoryService:storeFacialMemory: Multiple faces were detected in provided image for user " + user.getId());
         }
 
+        SearchFacesByImageResponse searchFacesByImageResponse = awsRekognitionFaceService.searchImage(collection.getCollectionId(), image);
+
+        if (searchFacesByImageResponse.faceMatches().size() > 0) {
+            throw new FaceAlreadyInCollectionException("FaceMemoryException:FaceMemoryService:storeFacialMemory: Face already exists into collection " + user.getId());
+        }
+
         IndexFacesResponse response = awsRekognitionFaceService.indexFace(collection.getCollectionId(), image);
 
         FaceRecord faceRecord = response.faceRecords().iterator().next();
@@ -58,10 +62,17 @@ public class FaceMemoryServiceImpl implements FaceMemoryService {
     }
 
     @Override
-    public boolean removeFacialMemory(FaceMemory faceMemory) {
+    public boolean removeFacialMemory(FaceMemory faceMemory) throws FaceNotInCollectionException {
+        try {
+            awsRekognitionFaceService.searchFace(faceMemory.getCollection().getCollectionId(), faceMemory.getFaceId());
+        } catch (InvalidParameterException invalidParameterException) {
+            throw new FaceNotInCollectionException("FaceMemoryException:FaceMemoryService:removeFacialMemory: Face is not in collection " + faceMemory.getFaceId(), invalidParameterException);
+        }
+
         DeleteFacesResponse deleteFacesResponse = awsRekognitionFaceService.forgetFace(faceMemory.getFaceId(), faceMemory.getCollection().getCollectionId());
 
-        long deletedFaces = deleteFacesResponse.deletedFaces().stream()
+        long deletedFaces = deleteFacesResponse.deletedFaces()
+                .stream()
                 .filter(item -> item.equals(faceMemory.getFaceId()))
                 .count();
 

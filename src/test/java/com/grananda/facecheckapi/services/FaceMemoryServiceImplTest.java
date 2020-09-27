@@ -3,9 +3,7 @@ package com.grananda.facecheckapi.services;
 import com.grananda.facecheckapi.domain.FaceMemory;
 import com.grananda.facecheckapi.domain.FaceMemoryCollection;
 import com.grananda.facecheckapi.domain.User;
-import com.grananda.facecheckapi.exceptions.FaceCheckException;
-import com.grananda.facecheckapi.exceptions.MissingFaceInImageException;
-import com.grananda.facecheckapi.exceptions.MultipleFacesInImageException;
+import com.grananda.facecheckapi.exceptions.*;
 import com.grananda.facecheckapi.repositories.FaceMemoryRepository;
 import com.grananda.facecheckapi.utils.FaceMemoryCollectionFactory;
 import com.grananda.facecheckapi.utils.FaceMemoryFactory;
@@ -60,7 +58,6 @@ class FaceMemoryServiceImplTest {
         FaceDetail faceDetail = FaceDetail.builder()
                 .build();
 
-
         Set<FaceDetail> faceDetailList = new HashSet<>();
         faceDetailList.add(faceDetail);
 
@@ -69,6 +66,13 @@ class FaceMemoryServiceImplTest {
                 .build();
 
         when(awsRekognitionFaceService.detectFaces(image)).thenReturn(detectFacesResponse);
+
+
+        SearchFacesByImageResponse searchFacesByImageResponse = SearchFacesByImageResponse.builder()
+                .build();
+
+        when(awsRekognitionFaceService.searchImage(faceMemoryCollection.getCollectionId(), image))
+                .thenReturn(searchFacesByImageResponse);
 
         when(awsRekognitionFaceService.indexFace(faceMemoryCollection.getCollectionId(), image))
                 .thenReturn(indexFacesResponse);
@@ -144,7 +148,6 @@ class FaceMemoryServiceImplTest {
                 .thenReturn(indexFacesResponse);
 
         // When
-        // When
         Exception exception = assertThrows(MultipleFacesInImageException.class, () -> {
             faceMemoryService.storeFacialMemory(user, faceMemoryCollection, image);
         });
@@ -154,7 +157,52 @@ class FaceMemoryServiceImplTest {
     }
 
     @Test
-    void a_face_is_removed_from_a_collection() {
+    void an_face_can_not_be_stored_multiple_times_once_indexed() throws IOException {
+        // Given
+        FaceMemoryCollection faceMemoryCollection = FaceMemoryCollectionFactory.create();
+        User user = UserFactory.create();
+        Image image = ImageFactory.create("assets/image1a.jpg");
+
+        Face face = Face.builder()
+                .faceId(UUID.randomUUID().toString())
+                .build();
+
+        FaceMatch faceMatch = FaceMatch.builder()
+                .face(face)
+                .build();
+
+        SearchFacesByImageResponse searchFacesByImageResponse = SearchFacesByImageResponse.builder()
+                .faceMatches(faceMatch)
+                .build();
+
+        when(awsRekognitionFaceService.searchImage(faceMemoryCollection.getCollectionId(), image))
+                .thenReturn(searchFacesByImageResponse);
+
+        FaceDetail faceDetail = FaceDetail.builder()
+                .confidence(99F)
+                .build();
+
+        Set<FaceDetail> faceDetailList = new HashSet<>();
+        faceDetailList.add(faceDetail);
+
+        DetectFacesResponse detectFacesResponse = DetectFacesResponse.builder()
+                .faceDetails(faceDetailList)
+                .build();
+
+        when(awsRekognitionFaceService.detectFaces(image)).thenReturn(detectFacesResponse);
+
+        // When
+        Exception exception = assertThrows(FaceAlreadyInCollectionException.class, () -> {
+            faceMemoryService.storeFacialMemory(user, faceMemoryCollection, image);
+        });
+
+        // Then
+        assertTrue(exception.getMessage().contains("FaceMemoryException:FaceMemoryService:storeFacialMemory:"));
+
+    }
+
+    @Test
+    void a_face_is_removed_from_a_collection() throws FaceNotInCollectionException {
         // Given
         FaceMemoryCollection faceMemoryCollection = FaceMemoryCollectionFactory.create();
         FaceMemory faceMemory = FaceMemoryFactory.create();
@@ -166,6 +214,17 @@ class FaceMemoryServiceImplTest {
                 .deletedFaces(faceMemory.getFaceId())
                 .build();
 
+        Face face = Face.builder()
+                .faceId(faceMemory.getFaceId())
+                .build();
+
+        ListFacesResponse listFacesResponse = ListFacesResponse.builder()
+                .faces(face)
+                .build();
+
+        when(awsRekognitionFaceService.listCollectionFaces(faceMemoryCollection.getCollectionId()))
+                .thenReturn(listFacesResponse);
+
         when(awsRekognitionFaceService.forgetFace(faceMemory.getFaceId(), faceMemoryCollection.getCollectionId()))
                 .thenReturn(deleteFacesResponse);
 
@@ -174,5 +233,26 @@ class FaceMemoryServiceImplTest {
 
         // Then
         assertTrue(response);
+    }
+
+    @Test
+    void a_non_existing_face_can_not_be_removed_from_a_collection() {
+        // Given
+        FaceMemoryCollection faceMemoryCollection = FaceMemoryCollectionFactory.create();
+        FaceMemory faceMemory = FaceMemoryFactory.create();
+
+        faceMemory.setCollection(faceMemoryCollection);
+        faceMemoryCollection.getFaces().add(faceMemory);
+
+        when(awsRekognitionFaceService.searchFace(faceMemoryCollection.getCollectionId(), faceMemory.getFaceId()))
+                .thenThrow(InvalidParameterException.class);
+
+        // When
+        Exception exception = assertThrows(FaceNotInCollectionException.class, () -> {
+            faceMemoryService.removeFacialMemory(faceMemory);
+        });
+
+        // Then
+        assertTrue(exception.getMessage().contains("FaceMemoryException:FaceMemoryService:removeFacialMemory:"));
     }
 }

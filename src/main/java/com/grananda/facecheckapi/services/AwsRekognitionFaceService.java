@@ -12,6 +12,10 @@ public interface AwsRekognitionFaceService {
 
     SearchFacesByImageResponse identifyFace(String collectionId, Image image);
 
+    SearchFacesResponse searchFace(String collectionId, String faceId);
+
+    SearchFacesByImageResponse searchImage(String collectionId, Image image);
+
     DeleteFacesResponse forgetFace(String collectionId, String faceId);
 
     DeleteFacesResponse forgetFaces(String collectionId, Collection<String> faceIds);
