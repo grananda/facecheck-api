@@ -119,7 +119,7 @@ class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
     }
 
     @Test
-    void a_face_is_identified_by_id() throws IOException {
+    void a_face_is_found_by_id() throws IOException {
         // Given
         Image image = processSourceImage("assets/image1a.jpg");
 
@@ -137,7 +137,7 @@ class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
     }
 
     @Test
-    void a_face_is_not_identified_by_id() throws IOException {
+    void a_face_is_not_found_by_id() throws IOException {
         // Given
         Image image = processSourceImage("assets/image1a.jpg");
 
@@ -157,7 +157,7 @@ class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
     }
 
     @Test
-    void a_face_is_identified_by_image() throws IOException {
+    void a_face_is_found_by_image() throws IOException {
         // Given
         Image image = processSourceImage("assets/image1a.jpg");
 
@@ -173,7 +173,7 @@ class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
     }
 
     @Test
-    void a_face_is_not_identified_by_image() throws IOException {
+    void a_face_is_not_found_by_image() throws IOException {
         // Given
         Image image = processSourceImage("assets/image1a.jpg");
 
@@ -183,7 +183,7 @@ class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
         SearchFacesByImageResponse response = rekognitionFaceService.searchImage(collectionId, image);
 
         // Then
-        assertTrue(response.faceMatches().size() == 0);
+        assertEquals(response.faceMatches().size(), 0);
     }
 
     @Test

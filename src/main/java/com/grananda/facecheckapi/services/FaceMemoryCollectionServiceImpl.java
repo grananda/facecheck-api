@@ -2,11 +2,13 @@ package com.grananda.facecheckapi.services;
 
 import com.grananda.facecheckapi.domain.FaceMemoryCollection;
 import com.grananda.facecheckapi.domain.Organization;
+import com.grananda.facecheckapi.exceptions.UnknownCollectionException;
 import com.grananda.facecheckapi.repositories.FaceMemoryCollectionRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rekognition.model.CreateCollectionResponse;
 import software.amazon.awssdk.services.rekognition.model.DeleteCollectionResponse;
+import software.amazon.awssdk.services.rekognition.model.ResourceNotFoundException;
 
 @Log4j2
 @Service
@@ -49,13 +51,19 @@ public class FaceMemoryCollectionServiceImpl implements FaceMemoryCollectionServ
     }
 
     @Override
-    public Boolean removeFaceMemoryCollection(FaceMemoryCollection collection) {
-        DeleteCollectionResponse deleteCollectionResponse = awsRekognitionCollectionService.deleteFaceMemoryCollection(collection.getCollectionId());
+    public Boolean removeFaceMemoryCollection(FaceMemoryCollection collection) throws UnknownCollectionException {
+        try {
 
-        if (deleteCollectionResponse.statusCode() == awsRekognitionCollectionService.AWS_SUCCESS_STATUS_CODE) {
+            DeleteCollectionResponse deleteCollectionResponse = awsRekognitionCollectionService.deleteFaceMemoryCollection(collection.getCollectionId());
+
+            if (deleteCollectionResponse.statusCode() == awsRekognitionCollectionService.AWS_SUCCESS_STATUS_CODE) {
+
+                return true;
+            }
+        } catch (ResourceNotFoundException resourceNotFoundException) {
+            throw new UnknownCollectionException("FaceMemoryException:FaceMemoryCollectionService:removeFaceMemoryCollection: Can not find requested collection: " + collection.getCollectionId());
+        } finally {
             faceMemoryCollectionRepository.delete(collection);
-
-            return true;
         }
 
         return false;

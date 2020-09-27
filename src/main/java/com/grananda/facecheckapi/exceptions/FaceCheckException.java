@@ -4,7 +4,7 @@ public class FaceCheckException extends Exception {
 
     private final String message;
 
-    public FaceCheckException(String message) {
+    public FaceCheckException(final String message) {
         super(message);
         this.message = message;
     }

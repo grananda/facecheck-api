@@ -5,10 +5,7 @@ import com.grananda.facecheckapi.domain.FaceMemoryCollection;
 import com.grananda.facecheckapi.domain.User;
 import com.grananda.facecheckapi.exceptions.*;
 import com.grananda.facecheckapi.repositories.FaceMemoryRepository;
-import com.grananda.facecheckapi.utils.FaceMemoryCollectionFactory;
-import com.grananda.facecheckapi.utils.FaceMemoryFactory;
-import com.grananda.facecheckapi.utils.ImageFactory;
-import com.grananda.facecheckapi.utils.UserFactory;
+import com.grananda.facecheckapi.utils.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -42,24 +40,14 @@ class FaceMemoryServiceImplTest {
         FaceMemoryCollection faceMemoryCollection = FaceMemoryCollectionFactory.create();
         User user = UserFactory.create();
         Image image = ImageFactory.create("assets/image1a.jpg");
-
-        Face face = Face.builder()
-                .faceId(UUID.randomUUID().toString())
-                .build();
-
-        FaceRecord faceRecord = FaceRecord.builder()
-                .face(face)
-                .build();
+        FaceRecord faceRecord = FaceRecordFactory.create();
 
         IndexFacesResponse indexFacesResponse = IndexFacesResponse.builder()
                 .faceRecords(faceRecord)
                 .build();
 
-        FaceDetail faceDetail = FaceDetail.builder()
-                .build();
-
         Set<FaceDetail> faceDetailList = new HashSet<>();
-        faceDetailList.add(faceDetail);
+        faceDetailList.add(FaceDetailFactory.create());
 
         DetectFacesResponse detectFacesResponse = DetectFacesResponse.builder()
                 .faceDetails(faceDetailList)
@@ -67,9 +55,7 @@ class FaceMemoryServiceImplTest {
 
         when(awsRekognitionFaceService.detectFaces(image)).thenReturn(detectFacesResponse);
 
-
-        SearchFacesByImageResponse searchFacesByImageResponse = SearchFacesByImageResponse.builder()
-                .build();
+        SearchFacesByImageResponse searchFacesByImageResponse = SearchFacesByImageResponse.builder().build();
 
         when(awsRekognitionFaceService.searchImage(faceMemoryCollection.getCollectionId(), image))
                 .thenReturn(searchFacesByImageResponse);
@@ -82,8 +68,12 @@ class FaceMemoryServiceImplTest {
 
         // Then
         assertEquals(faceMemory.getCollection().getCollectionId(), faceMemoryCollection.getCollectionId());
-        assertEquals(faceMemory.getFaceId(), face.faceId());
+        assertEquals(faceMemory.getFaceId(), faceRecord.face().faceId());
         assertEquals(faceMemory.getUser().getEmail(), user.getEmail());
+
+        verify(awsRekognitionFaceService).detectFaces(image);
+        verify(awsRekognitionFaceService).searchImage(faceMemoryCollection.getCollectionId(), image);
+        verify(awsRekognitionFaceService).indexFace(faceMemoryCollection.getCollectionId(), image);
     }
 
     @Test()
