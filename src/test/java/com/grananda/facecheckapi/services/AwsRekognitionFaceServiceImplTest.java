@@ -7,9 +7,9 @@ import software.amazon.awssdk.services.rekognition.model.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
 
@@ -119,6 +119,74 @@ class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
     }
 
     @Test
+    void a_face_is_found_by_id() throws IOException {
+        // Given
+        Image image = processSourceImage("assets/image1a.jpg");
+
+        String collectionId = createCollection();
+
+        IndexFacesResponse indexFacesResponse = rekognitionFaceService.indexFace(collectionId, image);
+
+        String faceId = indexFacesResponse.faceRecords().iterator().next().face().faceId();
+
+        // When
+        SearchFacesResponse response = rekognitionFaceService.searchFace(collectionId, faceId);
+
+        // Then
+        assertTrue(response.hasFaceMatches());
+    }
+
+    @Test
+    void a_face_is_not_found_by_id() throws IOException {
+        // Given
+        Image image = processSourceImage("assets/image1a.jpg");
+
+        String collectionId = createCollection();
+
+        rekognitionFaceService.indexFace(collectionId, image);
+
+        String faceId = UUID.randomUUID().toString();
+
+        // When
+        Exception exception = assertThrows(InvalidParameterException.class, () -> {
+            rekognitionFaceService.searchFace(collectionId, faceId);
+        });
+
+        // Then
+        assertTrue(exception.getMessage().contains("400"));
+    }
+
+    @Test
+    void a_face_is_found_by_image() throws IOException {
+        // Given
+        Image image = processSourceImage("assets/image1a.jpg");
+
+        String collectionId = createCollection();
+
+        rekognitionFaceService.indexFace(collectionId, image);
+
+        // When
+        SearchFacesByImageResponse response = rekognitionFaceService.searchImage(collectionId, image);
+
+        // Then
+        assertTrue(response.faceMatches().size() > 0);
+    }
+
+    @Test
+    void a_face_is_not_found_by_image() throws IOException {
+        // Given
+        Image image = processSourceImage("assets/image1a.jpg");
+
+        String collectionId = createCollection();
+
+        // When
+        SearchFacesByImageResponse response = rekognitionFaceService.searchImage(collectionId, image);
+
+        // Then
+        assertEquals(response.faceMatches().size(), 0);
+    }
+
+    @Test
     void a_face_is_forgotten() throws IOException {
         // Given
         Image image = processSourceImage("assets/image1a.jpg");
@@ -127,12 +195,10 @@ class AwsRekognitionFaceServiceImplTest extends BaseAwsRekognitionTest {
 
         IndexFacesResponse indexFacesResponse = rekognitionFaceService.indexFace(collectionId, image);
 
-        Face face = indexFacesResponse.faceRecords().iterator().next().face();
-
-        String imageId = face.faceId();
+        String faceId = indexFacesResponse.faceRecords().iterator().next().face().faceId();
 
         // When
-        DeleteFacesResponse response = rekognitionFaceService.forgetFace(collectionId, imageId);
+        DeleteFacesResponse response = rekognitionFaceService.forgetFace(collectionId, faceId);
 
         // Then
         assertTrue(response.hasDeletedFaces());

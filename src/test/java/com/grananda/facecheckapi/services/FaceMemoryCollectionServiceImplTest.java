@@ -3,27 +3,27 @@ package com.grananda.facecheckapi.services;
 import com.github.javafaker.Faker;
 import com.grananda.facecheckapi.domain.FaceMemoryCollection;
 import com.grananda.facecheckapi.domain.Organization;
+import com.grananda.facecheckapi.exceptions.UnknownCollectionException;
 import com.grananda.facecheckapi.repositories.FaceMemoryCollectionRepository;
 import com.grananda.facecheckapi.repositories.OrganizationRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import software.amazon.awssdk.services.rekognition.model.CreateCollectionResponse;
 import software.amazon.awssdk.services.rekognition.model.DeleteCollectionResponse;
+import software.amazon.awssdk.services.rekognition.model.ResourceNotFoundException;
 
 import java.util.HashSet;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class FacialMemoryCollectionServiceImplTest {
+class FaceMemoryCollectionServiceImplTest {
 
     @MockBean
     AwsRekognitionCollectionService awsRekognitionCollectionService;
@@ -35,15 +35,10 @@ class FacialMemoryCollectionServiceImplTest {
     FaceMemoryCollectionRepository faceMemoryCollectionRepository;
 
     @Autowired
-    FacialMemoryCollectionServiceImpl service;
+    FaceMemoryCollectionServiceImpl service;
 
     @Autowired
     OrganizationRepository organizationRepository;
-
-    @BeforeEach
-    void setUp() {
-
-    }
 
     @Test
     void a_face_memory_collection_is_registered() {
@@ -92,9 +87,9 @@ class FacialMemoryCollectionServiceImplTest {
     }
 
     @Test
-    void a_face_memory_collection_is_removed() {
+    void a_face_memory_collection_is_removed() throws UnknownCollectionException {
         // Given
-        UUID collectionId = UUID.randomUUID();
+        String collectionId = UUID.randomUUID().toString();
         String collectionArn = Faker.instance().lorem().word();
         String collectionName = Faker.instance().lorem().word();
 
@@ -102,13 +97,13 @@ class FacialMemoryCollectionServiceImplTest {
                 .statusCode(200)
                 .build();
 
-        when(awsRekognitionCollectionService.deleteFaceMemoryCollection(anyString()))
+        when(awsRekognitionCollectionService.deleteFaceMemoryCollection(collectionId))
                 .thenReturn(deleteCollectionResponse);
 
         FaceMemoryCollection faceMemoryCollection = FaceMemoryCollection.builder()
                 .collectionArn(collectionArn)
                 .name(collectionName)
-                .collectionId(collectionId.toString())
+                .collectionId(collectionId)
                 .build();
 
         faceMemoryCollectionRepository.save(faceMemoryCollection);
@@ -119,5 +114,27 @@ class FacialMemoryCollectionServiceImplTest {
         // Then
         assertTrue(response);
         verify(faceMemoryCollectionRepository, times(1)).delete(any(FaceMemoryCollection.class));
+    }
+
+    @Test
+    void a_non_existing_face_memory_collection_is_not_removed() {
+        // Given
+        String collectionId = UUID.randomUUID().toString();
+
+        FaceMemoryCollection faceMemoryCollection = FaceMemoryCollection.builder()
+                .collectionId(collectionId)
+                .build();
+
+        when(awsRekognitionCollectionService.deleteFaceMemoryCollection(collectionId))
+                .thenThrow(ResourceNotFoundException.class);
+
+        // When
+        Exception exception = assertThrows(UnknownCollectionException.class, () -> {
+            service.removeFaceMemoryCollection(faceMemoryCollection);
+        });
+
+        // Then
+        assertTrue(exception.getMessage().contains("FaceMemoryException:FaceMemoryCollectionService:removeFaceMemoryCollection"));
+        verify(faceMemoryCollectionRepository, times(1)).delete(faceMemoryCollection);
     }
 }

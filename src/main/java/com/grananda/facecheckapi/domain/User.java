@@ -1,18 +1,18 @@
 package com.grananda.facecheckapi.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Setter
 @Getter
 @Entity
-@NoArgsConstructor
 public class User extends BaseEntity {
 
     @Column(name = "first_name")
@@ -46,6 +46,6 @@ public class User extends BaseEntity {
     private Organization organization;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "facial_memory_id", referencedColumnName = "id")
-    private FacialMemory facialMemory;
+    @JoinColumn(name = "face_memory_id", referencedColumnName = "id")
+    private FaceMemory faceMemory;
 }
