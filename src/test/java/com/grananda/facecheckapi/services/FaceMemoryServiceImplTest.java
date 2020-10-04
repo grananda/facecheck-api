@@ -15,7 +15,6 @@ import software.amazon.awssdk.services.rekognition.model.*;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -105,24 +104,14 @@ class FaceMemoryServiceImplTest {
         User user = UserFactory.create();
         Image image = ImageFactory.create("assets/image3a.jpg");
 
-        Face face = Face.builder()
-                .faceId(UUID.randomUUID().toString())
-                .build();
-
-        FaceRecord faceRecord = FaceRecord.builder()
-                .face(face)
-                .build();
+        FaceRecord faceRecord = FaceRecordFactory.create();
 
         IndexFacesResponse indexFacesResponse = IndexFacesResponse.builder()
                 .faceRecords(faceRecord)
                 .build();
 
-        FaceDetail faceDetail1 = FaceDetail.builder()
-                .confidence(99F)
-                .build();
-        FaceDetail faceDetail2 = FaceDetail.builder()
-                .confidence(88F)
-                .build();
+        FaceDetail faceDetail1 = FaceDetailFactory.create();
+        FaceDetail faceDetail2 = FaceDetailFactory.create();
 
         Set<FaceDetail> faceDetailList = new HashSet<>();
         faceDetailList.add(faceDetail1);
@@ -153,13 +142,7 @@ class FaceMemoryServiceImplTest {
         User user = UserFactory.create();
         Image image = ImageFactory.create("assets/image1a.jpg");
 
-        Face face = Face.builder()
-                .faceId(UUID.randomUUID().toString())
-                .build();
-
-        FaceMatch faceMatch = FaceMatch.builder()
-                .face(face)
-                .build();
+        FaceMatch faceMatch = FaceMatchFactory.create();
 
         SearchFacesByImageResponse searchFacesByImageResponse = SearchFacesByImageResponse.builder()
                 .faceMatches(faceMatch)
@@ -168,9 +151,7 @@ class FaceMemoryServiceImplTest {
         when(awsRekognitionFaceService.searchImage(faceMemoryCollection.getCollectionId(), image))
                 .thenReturn(searchFacesByImageResponse);
 
-        FaceDetail faceDetail = FaceDetail.builder()
-                .confidence(99F)
-                .build();
+        FaceDetail faceDetail = FaceDetailFactory.create();
 
         Set<FaceDetail> faceDetailList = new HashSet<>();
         faceDetailList.add(faceDetail);
